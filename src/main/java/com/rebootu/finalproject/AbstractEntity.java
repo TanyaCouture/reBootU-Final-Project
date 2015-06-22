@@ -1,12 +1,5 @@
 package com.rebootu.finalproject;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,20 +20,4 @@ public abstract class AbstractEntity {
 
     protected void setUid(int uid) { this.uid = uid; }
 
-    public void save() {
-
-        Configuration conf = new Configuration();
-        conf.configure();
-        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(conf.getProperties()).build();
-        SessionFactory factory = conf.buildSessionFactory(serviceRegistry);
-
-        Session session = factory.openSession();
-
-        Transaction t = session.beginTransaction();
-
-        session.persist(this);
-
-        t.commit();
-        session.close();
-    }
 }

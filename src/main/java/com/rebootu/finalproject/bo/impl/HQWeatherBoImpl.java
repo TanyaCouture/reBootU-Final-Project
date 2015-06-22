@@ -1,4 +1,4 @@
-package com.rebootu.finalproject.dao.impl;
+package com.rebootu.finalproject.bo.impl;
 
 import com.rebootu.finalproject.HQWeather;
 import com.rebootu.finalproject.bo.HQWeatherBo;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by tanyacouture on 6/15/15.
@@ -15,8 +16,8 @@ import java.util.Date;
 @Service("HQWeatherBo")
 public class HQWeatherBoImpl implements HQWeatherBo{
 
-        @Autowired
-        HQWeatherDao hqWeatherDao;
+    @Autowired
+    HQWeatherDao hqWeatherDao;
 
     public void setHqWeatherDao(HQWeatherDao hqWeatherDao){
         this.hqWeatherDao = hqWeatherDao;
@@ -37,4 +38,11 @@ public class HQWeatherBoImpl implements HQWeatherBo{
     public HQWeather findByDate(Date date){
         return hqWeatherDao.findByDate(date);
     }
+
+    public HQWeather findByUid(int uid) { return hqWeatherDao.findByUid(uid); }
+
+    public List<HQWeather> findByDateRange(Date startDate, Date endDate) { return hqWeatherDao.findByDateRange(startDate, endDate); }
+
+    public List<HQWeather> findByMonth(Date month) { return hqWeatherDao.findByMonth(month); }
 }
+

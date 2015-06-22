@@ -5,10 +5,9 @@ import com.sun.istack.internal.NotNull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.time.Month;
-import java.time.MonthDay;
-import java.time.Year;
 import java.util.Date;
+import java.util.List;
+import java.sql.ResultSet;
 
 /**
  * Created by tanyacouture on 6/4/15.
@@ -22,19 +21,19 @@ import java.util.Date;
 public class HQWeather extends AbstractEntity {
 
     private Date date;
-    private double precipitation;
-    private double dailySnowFall;
-    private double snowDepth;
-    private double maxTemp;
-    private double minTemp;
-    private Year year;
+    private Double precipitation;
+    private Double dailySnowFall;
+    private Double snowDepth;
+    private Double maxTemp = null;
+    private Double minTemp = null;
+    /*private Year year;
     private Month month;
     private MonthDay dateNumber;
-    private double dayCounted;
-    private double accumPrecip;
-    private double accumSnowFall;
+    private double dayCounted;*/
+    private Double accumPrecip;
+    private Double accumSnowFall;
 
-    public HQWeather(Date date, double precipitation, double dailySnowFall, double snowDepth, double maxTemp, double minTemp, double accumPrecip, double accumSnowFall){
+    public HQWeather(Date date, Double precipitation, Double dailySnowFall, Double snowDepth, Double maxTemp, Double minTemp, Double accumPrecip, Double accumSnowFall){
 
         this.date = date;
         this.precipitation = precipitation;
@@ -58,24 +57,24 @@ public class HQWeather extends AbstractEntity {
     public void setDate(Date date) { this.date = date; }
 
     @Column(name = "precipitation", unique = false)
-    public double getPrecipitation() { return precipitation; }
-    public void setPrecipitation(double precipitation) { this.precipitation = precipitation; }
+    public Double getPrecipitation() { return precipitation; }
+    public void setPrecipitation(Double precipitation) { this.precipitation = precipitation; }
 
     @Column(name = "daily_snow", unique = false)
-    public double getDailySnowFall() { return dailySnowFall; }
-    public void setDailySnowFall(double dailySnowFall) { this.dailySnowFall = dailySnowFall; }
+    public Double getDailySnowFall() { return dailySnowFall; }
+    public void setDailySnowFall(Double dailySnowFall) { this.dailySnowFall = dailySnowFall; }
 
     @Column(name = "snow_depth", unique = false)
-    public double getSnowDepth() { return snowDepth;}
-    public void setSnowDepth(double snowDepth) { this.snowDepth = snowDepth; }
+    public Double getSnowDepth() { return snowDepth;}
+    public void setSnowDepth(Double snowDepth) { this.snowDepth = snowDepth; }
 
     @Column(name = "max_temp", unique = false)
-    public double getMaxTemp() { return maxTemp;}
-    public void setMaxTemp(double maxTemp) { this.maxTemp = maxTemp; }
+    public Double getMaxTemp() { return maxTemp;}
+    public void setMaxTemp(Double maxTemp) { this.maxTemp = maxTemp; }
 
     @Column(name = "min_temp", unique = false)
-    public double getMinTemp() { return minTemp; }
-    public void setMinTemp(double minTemp) { this.minTemp = minTemp; }
+    public Double getMinTemp() { return minTemp; }
+    public void setMinTemp(Double minTemp) { this.minTemp = minTemp; }
 
     /*@NotNull
     @Column(name = "year", unique = true)
@@ -98,10 +97,46 @@ public class HQWeather extends AbstractEntity {
     public void setDayCounted(double dayCounted) { this.dayCounted = dayCounted; }*/
 
     @Column(name = "accum_precip", unique = false)
-    public double getAccumPrecip() { return accumPrecip; }
-    public void setAccumPrecip(double accumPrecip) { this.accumPrecip = accumPrecip; }
+    public Double getAccumPrecip() { return accumPrecip; }
+    public void setAccumPrecip(Double accumPrecip) { this.accumPrecip = accumPrecip; }
 
     @Column(name = "accum_snow", unique = false)
-    public double getAccumSnowFall() { return accumSnowFall;}
-    public void setAccumSnowFall(double accumSnowFall) { this.accumSnowFall = accumSnowFall; }
+    public Double getAccumSnowFall() { return accumSnowFall;}
+    public void setAccumSnowFall(Double accumSnowFall) { this.accumSnowFall = accumSnowFall; }
+
+    // calculates the average temperature for one day, does it need to throw an exception?
+    public Double getDailyAvg(Double minTemp, Double maxTemp){
+        if (minTemp == null && maxTemp!=null) {
+            return maxTemp;
+        }
+        if (minTemp != null && maxTemp == null) {
+            return minTemp;
+        }
+        if (minTemp == null && maxTemp == null) {
+             return null;
+        }
+        Double dailyAvg = (double)Math.round((minTemp + maxTemp)/2*10)/10;
+            return dailyAvg;
+    }
+
+    // calculates the "climate normal" for a longer range of dates
+    public static Double getClimateNormal(List<HQWeather>list){
+        Double sumAvg = 0.0;
+        Double dailyAvg = 0.0;
+        int count = 0;
+        Double climateNormal = 0.0;
+        for(int i = 0; i < list.size(); i++,count++){
+            Double mintemp = list.get(i).getMinTemp();
+            Double maxtemp = list.get(i).getMaxTemp();
+
+            dailyAvg = list.get(i).getDailyAvg(mintemp, maxtemp);
+            if (dailyAvg == null) {
+                dailyAvg = 0.0;
+                count = count - 1;
+            }
+            sumAvg = sumAvg + dailyAvg;
+        }
+        climateNormal = (double)Math.round(sumAvg/count*10)/10;
+        return climateNormal;
+    }
 }
